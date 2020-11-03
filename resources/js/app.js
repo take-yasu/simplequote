@@ -18,6 +18,7 @@ window.Vue = require('vue');
 import Vue from 'vue'
 import ClearData from './components/ClearData.vue'
 import AddRow from './components/AddRow.vue'
+import SuccessMsg from './components/SuccessMsg.vue'
 //import SearchProduct from './components/SearchProduct.vue'
 
 new Vue({
@@ -25,5 +26,6 @@ new Vue({
     components: {
         ClearData,
         AddRow,
+        SuccessMsg,
     }
 });

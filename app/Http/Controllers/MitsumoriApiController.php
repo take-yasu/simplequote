@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Product;
 use App\PriceCode;
 use App\User;
+use App\Facades\GetQuotation;
 
 class MitsumoriApiController extends Controller
 {
@@ -28,7 +29,13 @@ class MitsumoriApiController extends Controller
 
     //品番検索API
     public function getProductNumber($product_name){
-        $products = Product::where('product_name', 'like', '%' . $product_name . '%')->get(['product_number', 'product_name']);
+        $products = Product::where('product_name', 'like', '%' . $product_name . '%')->get(['product_number', 'product_name', 'unit']);
         return $products;
     }
+
+    //見積書PDF作成API
+    public function getQuote($denpyou_number){
+        $pdf = GetQuotation::createPdf($denpyou_number);
+    }
+
 }

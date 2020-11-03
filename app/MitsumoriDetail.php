@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class MitsumoriDetail extends Model
 {
+    protected $guarded = [
+        'id',
+    ];
+
     public function mitsumoriHeader(){
         return $this->belongsTo('App\MitsumoriHeader', 'denpyou_number', 'denpyou_number');
     }

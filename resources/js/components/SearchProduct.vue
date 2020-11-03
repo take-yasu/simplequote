@@ -1,5 +1,5 @@
 <template>
-    <transition name="modal" appear>
+    <transition name="modal-search" appear>
         <div id="overlay">
             <div id="content" class="rounded shadow">
                 <div class="modal-header">
@@ -47,7 +47,7 @@
             return{
                 num: '',
                 productName: '',
-                productNames: [],
+                productNames: {},
                 showProduct: false,
                 showError: false,
                 commentErrors: ''
@@ -56,32 +56,42 @@
         methods: {
             closeModal(){
                 this.$emit('close')
+                this.productName = ''
+                this.productNames = {}
+                this.showProduct = false
+                this.showError = false
             },
             decideNum(product_number){
                 this.$emit('decide', [product_number, this.row])
+                this.productName = ''
+                this.productNames = {}
+                this.showProduct = false
+                this.showError = false
             },
             async searchNumber(){
                 const response = await axios.get(`/api/mitsumori/search/name/${this.productName}`)
                 .then(res => {
                     this.productNames = res.data
+                    console.log(Object.keys(this.productNames).length)
+                    console.log(this.showProduct)
+                    if(Object.keys(this.productNames).length > 0){
+                        this.showProduct = true
+                    }
+                    console.log(this.showProduct)
                 })
                 .catch(e => {
                     this.commentErrors = e.response.data.errors
                     this.showError = true
+                    this.showProduct = false
                 })
             }
         },
-        watch: {
-            productNames: function(){
-                this.showProduct = true
-            }
-        }
 
     }
 </script>
 
 <style>
-  #overlay{
+ #overlay{
   z-index:1;
   position:fixed;
   top:0;
@@ -102,11 +112,11 @@
   background-color: #ffffff;
 }
 
-.modal-enter-active, .modal-leave-active {
+.modal-search-enter-active, .modal-search-leave-active {
   transition:opacity 0.5s;
 }
 
-.modal-enter, .modal-leave-to {
+.modal-search-enter, .modal-search-leave-to {
   opacity: 0;
 }
 

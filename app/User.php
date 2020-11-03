@@ -40,4 +40,8 @@ class User extends Authenticatable
     public function priceCodes(){
         return $this->hasMany('App\PriceCode', 'price_code', 'price_code');
     }
+
+    public function getAllAddressAttribute(){
+        return $this->pref_name . $this->city_name . $this->address;
+    }
 }

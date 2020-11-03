@@ -7,18 +7,96 @@ use App\MitsumoriHeader;
 use App\MitsumoriDetail;
 use App\Prefecture;
 use App\Http\Requests\CreateRequest;
-
+use App\Facades\DeliveryFeeQuote;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class CreateController extends Controller
 {
     public function index(){
-        $denpyou_row = 5;
-        $prefs = Prefecture::get(['pref_name']);
-        return view('create.index', ['denpyou_rows' => $denpyou_row, 'prefs' => $prefs]);
+        $prefs = Prefecture::get(['pref_name', 'pref_code']);
+        return view('create.index', ['prefs' => $prefs,]);
     }
 
     public function insert(CreateRequest $request){
+        $prefs = Prefecture::where('pref_code', '=', $request->address01)->first(['pref_name']);
+        $product = [];
+        foreach($request->new_product_number as $key => $value){
+            $product[$key] = array(
+                'product_number' => $value,
+                'product_name' => $request->product_name[$key],
+                'quantity' => $request->quantity[$key],
+                'unit' => $request->unit[$key],
+                'unit_price' => $request->unit_price[$key],
+                'subtotal' => $request->subtotal[$key],
+            );
+        }
 
-        return view('create.create', ['request' =>$request]);
+        $product[] = [
+            'product_number' => '4',
+            'product_name' => '配送料金',
+            'quantity' => '1',
+            'unit' => '式',
+            'unit_price' => $request->fee,
+            'subtotal' => $request->fee,
+        ];
+
+        $request->session()
+            ->put(['delivery_name' => $request->delivery_name,
+                  'pref_code' => $request->address01,
+                  'pref_name' => $prefs->pref_name,
+                  'city_name' => $request->address02,
+                  'address' => $request->address03,
+                  'product' => $product,
+                  'fee' => $request->fee,
+                  'tax' => $request->tax,
+                  'total' => $request->total,
+              ]);
+        return view('create.confirm', ['request' => $request, 'pref' => $prefs]);
+    }
+
+    public function success(Request $request){
+        $max = MitsumoriHeader::max('denpyou_number');
+        $next_denpyou_number = ++$max;
+        $i = 1;
+
+        DB::transaction(function() use ($next_denpyou_number, $i){
+            MitsumoriHeader::create([
+                'denpyou_number' => $next_denpyou_number,
+                'user_code' => Auth::user()->user_code,
+                'user_name' => Auth::user()->name,
+                'company_name' => Auth::user()->company_name,
+                'tel' => Auth::user()->tel,
+                'fax' => Auth::user()->fax,
+                'delivery_name' => Session::get('delivery_name'),
+                'pref_code' => Session::get('pref_code'),
+                'pref_name' => Session::get('pref_name'),
+                'city_name' => Session::get('city_name'),
+                'address' => Session::get('address'),
+                'total_sales' => Session::get('total'),
+                'estimated_Date' => Carbon::now(),
+            ]);
+            foreach(Session::get('product') as $product){
+                MitsumoriDetail::create([
+                    'denpyou_number' => $next_denpyou_number,
+                    'row_number' => $i,
+                    'product_number' => $product['product_number'],
+                    'product_name' => $product['product_name'],
+                    'quantity' => $product['quantity'],
+                    'unit' => $product['unit'],
+                    'unit_price' => $product['unit_price'],
+                    'subtotal' => $product['subtotal'],
+                ]);
+                $i++;
+            }
+        });
+
+
+        $items = MitsumoriHeader::with('mitsumoriDetails')->where('denpyou_number', '=', $next_denpyou_number)->first();
+        $tax = number_format(round($items->total_sales * config('const.TAX'))) . '円';
+        $total = number_format($items->total_sales + ($items->total_sales * config('const.TAX'))) . '円';
+        return view('create.success', ['items' => $items, 'tax' => $tax, 'total' => $total]);
     }
 }

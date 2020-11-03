@@ -13,7 +13,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        app()->bind('deliveryfeequote', 'App\Library\DeliveryFeeQuote');
+        app()->bind('getquotation', 'App\Library\GetQuotation');
     }
 
     /**

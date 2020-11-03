@@ -1,46 +1,55 @@
 <template>
     <div>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>商品コード</th>
-                    <th>商品名</th>
-                    <th>数量</th>
-                    <th>単価</th>
-                    <th>小計</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <transition-group name="draggingTable" tag="tbody">
-                <tr
-                    v-for="(row, index) in rows"
-                    v-bind:key="row"
-                    draggable
-                    @dragstart="dragList($event, index)"
-                    @drop="dropList($event, index)"
-                    @dragover.prevent
-                    @dragenter.prevent
-                    >
-                    <td>
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="product_number[]" @change="searchProduct(row); searchPrice(row)" v-model="ProdNum[row]">
-                            <div class="input-group-append">
-                                <button type="button" class="btn btn-outline-primary" @click="openModal(row)">検索</button>
+        <form :action="loginUser.route" method="post" ref="form" id="create" @submit.prevent="checkForm()">
+            <input type="hidden" name="_token" :value="csrf">
+            <!--見積ヘッダー部-->
+                <slot></slot>
+            <!--見積明細部-->
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>商品コード</th>
+                        <th>商品名</th>
+                        <th>数量</th>
+                        <th>単位</th>
+                        <th>単価</th>
+                        <th>小計</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <transition-group name="draggingTable" tag="tbody">
+                    <tr
+                        v-for="(row, index) in rows"
+                        v-bind:key="row"
+                        draggable
+                        @dragstart="dragList($event, index)"
+                        @drop="dropList($event, index)"
+                        @dragover.prevent
+                        @dragenter.prevent
+                        >
+                        <td>
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="product_number[]" @change="searchProduct(row); searchPrice(row)" v-model="ProdNum[row]">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-primary" @click="openModal(row)">検索</button>
+                                </div>
+                                <!--<button type="button" class="btn btn-outline-primary" @click="openModal(row)">検索</button>-->
                             </div>
-                            <!--<button type="button" class="btn btn-outline-primary" @click="openModal(row)">検索</button>-->
-                        </div>
-                        <search-product v-show="showModal" :row="rowNumber" @close="closeModal" @decide="getNum($event, index)"></search-product>
-                    </td>
-                    <td><input type="text" class="form-control" name="product_name[]" v-model="ProdNam[row]" readonly></td>
-                    <td><input type="text" class="form-control" name="quantity[]" @change="subTotal(row)" v-model="Quant[row]"></td>
-                    <td><input type="text" class="form-control" name="unit_price[]" v-model="UnitPr[row]" readonly></td>
-                    <td><input type="text" class="form-control" name="subtotal[]" v-model="SubTo[row]" readonly></td>
-                    <td><button type="button" class="btn btn-outline-danger" @click="delRow(row)">×</button></td>
-                </tr>
-            </transition-group>
-            <div v-show="showError" class="text-danger small">{{ commentErrors }}</div>
-            <button type="button" class="btn btn-outline-primary" @click="addRow">行追加</button>
-        </table>
+                            <search-product v-show="showModal" :row="rowNumber" @close="closeModal" @decide="getNum($event, index)"></search-product>
+                        </td>
+                        <td><input type="text" class="form-control" name="product_name[]" v-model="ProdNam[row]" readonly></td>
+                        <td><input type="text" class="form-control" name="quantity[]" @change="subTotal(row)" v-model="Quant[row]"></td>
+                        <td><input type="text" class="form-control" name="unit[]" v-model="Uni[row]" readonly></td>
+                        <td><input type="text" class="form-control" name="unit_price[]" v-model="UnitPr[row]" readonly></td>
+                        <td><input type="text" class="form-control" name="subtotal[]" v-model="SubTo[row]" readonly></td>
+                        <td><button type="button" class="btn btn-outline-danger" @click="delRow(row)">×</button></td>
+                    </tr>
+                </transition-group>
+                <div v-show="showError" class="text-danger small">{{ commentErrors }}</div>
+                <button type="button" class="btn btn-outline-primary" @click="addRow">行追加</button>
+            </table>
+            <button type="submit" class="btn btn-primary">確認</button>
+        </form>
     </div>
 </template>
 
@@ -53,14 +62,16 @@
         },
         props: {
             loginUser: {},
+            old: {},
         },
         data: function(){
             return {
-                rows: [0,1,2,3,],
+                rows: Array(),
                 def: 4,
                 ProdNum: [],
                 Quant: [],
                 ProdNam: [],
+                Uni: [],
                 UnitPr: [],
                 SubTo: [],
                 showError: false,
@@ -68,6 +79,8 @@
                 draggingItem: null,
                 showModal: false,
                 rowNumber: '',
+                ErrNum: false,
+                csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             }
         },
         methods: {
@@ -107,14 +120,47 @@
                     this.$set(this.SubTo, row, st)
                 }
             },
+            checkForm(){
+                let self = this
+                this.checkNum()
+                .then(function(){
+                    console.log('繰り返しの後')
+                    console.log(self.ErrNum)
+                    if(!self.ErrNum){
+                        self.$refs.form.submit()
+                    }else{
+                        self.ErrNum = false
+                    }
+                })
+            },
+            async checkNum(){
+                this.ErrNum = false
+                console.log(this.ErrNum)
+                for(let i = 0; i < this.def; i++){
+                    if(this.ProdNum[i]){
+                        await this.searchProduct(i)
+                        console.log(this.ErrNum)
+                        if(this.ErrNum){
+                            console.log('breakします')
+                            break
+                        }
+                    }
+                }
+            },
             //品名検索
             async searchProduct(row){
                 const response = await axios.get(`/api/mitsumori/search/number/${this.ProdNum[row]}`)
                 .then(res => {
                     this.$set(this.ProdNam, row, res.data.product_name)
+                    this.$set(this.Uni, row, res.data.unit)
+                    console.log(res.data.product_name)
+
                     if(!res.data.product_name){
-                        alert('品番が存在しません')
                         this.$set(this.ProdNum, row, '')
+                        this.$set(this.ProdNam, row, '')
+                        this.$set(this.Uni, row, '')
+                        this.ErrNum = true
+                        console.log('品番が存在しません')
                     }
                 })
                 .catch(e => {
@@ -136,6 +182,54 @@
                     this.commentErrors = e.response.data.errors.comment[0]
                     this.showError = true
                 })
+            },
+        },
+        created(){
+            if(this.old.product_number){
+                let len = Object.keys(this.old.product_name).length
+                for(let i = 0; i < len; i++){
+                    this.rows.push(i)
+                }
+                let items = this.old.product_number
+                items.forEach(element => {
+                  this.ProdNum.push(element)
+                });
+            }else{
+                let len = this.def
+                for(let i = 0; i < len; i++){
+                    this.rows.push(i)
+                }
+            }
+
+            if(this.old.quantity){
+                let items = this.old.quantity
+                items.forEach(element => {
+                    this.Quant.push(element)
+                });
+            }
+            if(this.old.unit){
+                let items = this.old.unit
+                items.forEach(element => {
+                    this.Uni.push(element)
+                });
+            }
+            if(this.old.product_name){
+                let items = this.old.product_name
+                items.forEach(element => {
+                    this.ProdNam.push(element)
+                });
+            }
+            if(this.old.unit_price){
+                let items = this.old.unit_price
+                items.forEach(element => {
+                    this.UnitPr.push(element)
+                });
+            }
+            if(this.old.subtotal){
+                let items = this.old.subtotal
+                items.forEach(element => {
+                    this.SubTo.push(element)
+                });
             }
         },
     }
