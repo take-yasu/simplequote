@@ -8,12 +8,18 @@
             <div class="container">
                 <div class="row">
                     <div class="col">
-                        <div class="float-right">
-                            <a href="" class="btn btn-outline-secondary">修正</a>
-                            <a href="" class="btn btn-outline-secondary">複写</a>
-                            <a href="" class="btn btn-outline-secondary">印刷</a>
-                            <a href="" class="btn btn-outline-secondary">戻る</a>
-                            <a href="" class="btn btn-outline-danger">削除</a>
+                        <div class="float-right btn-group">
+                            <div class="btn-toolbar">
+                                <a href="" class="btn btn-outline-secondary">修正</a>
+                                <a href="" class="btn btn-outline-secondary">複写</a>
+                                <a href="/api/mitsumori/pdf/{{$items->denpyou_number}}" class="btn btn-outline-secondary">印刷</a>
+                                <a href="{{route('search.index')}}" class="btn btn-outline-secondary">一覧</a>
+                                <confirm-msg
+                                    :denpyou-data="{{ json_encode([
+                                        'number' => $items->denpyou_number, 
+                                        ])}}">
+                                </confirm-msg>
+                            </div class="btn-toolbar">
                         </div>
                     </div>
                 </div>

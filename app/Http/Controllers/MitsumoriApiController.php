@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Product;
 use App\PriceCode;
 use App\User;
+use App\MitsumoriHeader;
+use App\MitsumoriDetail;
 use App\Facades\GetQuotation;
 
 class MitsumoriApiController extends Controller
@@ -36,6 +38,13 @@ class MitsumoriApiController extends Controller
     //見積書PDF作成API
     public function getQuote($denpyou_number){
         $pdf = GetQuotation::createPdf($denpyou_number);
+    }
+
+    //見積書削除API
+    public function deleteQuote(Request $request){
+        MitsumoriDetail::where('denpyou_number', '=', $request->denpyou_number)->delete();
+        MitsumoriHeader::where('denpyou_number', '=', $request->denpyou_number)->delete();
+        return response(201);
     }
 
 }

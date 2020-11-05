@@ -19,6 +19,7 @@ import Vue from 'vue'
 import ClearData from './components/ClearData.vue'
 import AddRow from './components/AddRow.vue'
 import SuccessMsg from './components/SuccessMsg.vue'
+import ConfirmMsg from './components/ConfirmMsg.vue'
 //import SearchProduct from './components/SearchProduct.vue'
 
 new Vue({
@@ -27,5 +28,6 @@ new Vue({
         ClearData,
         AddRow,
         SuccessMsg,
+        ConfirmMsg,
     }
 });

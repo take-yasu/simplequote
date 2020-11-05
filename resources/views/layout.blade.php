@@ -13,7 +13,7 @@
         <span class="navbar-brand text-white">〇△販売 簡易見積もりサービス</span>
         <div class="collapse navbar-collapse" id="navbarNav">
             <div class="navbar-nav">
-                <a class="nav-item nav-link" href="#">TOPページ</a>
+                <a class="nav-item nav-link" href="{{route('home')}}">TOPページ</a>
                 <a class="nav-item nav-link" href="{{route('search.index')}}">見積り検索</a>
                 <a class="nav-item nav-link" href="{{route('create.index')}}">見積り新規作成</a>
             </div>

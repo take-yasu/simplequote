@@ -9,7 +9,7 @@
             <div class="card mb-2">
                 <div class="card-header">検索条件を入力してください</div>
                 <div class="card-body">
-                    <form action="{{route('search.search')}}" method="post" id="search">
+                    <form action="{{route('search.search')}}" method="get" id="search" name="search">
                         @csrf
                         <!--入力エラーの表示-->
                         @if(count($errors) > 0)
@@ -65,7 +65,7 @@
                     </form>
                 </div>
             </div>
-            {!! $items->links() !!}
+            {!! $items->appends(request()->query())->links() !!}
             <!-- 検索結果表示 -->
             @if($header === 1)
             <!--ヘッダ情報のみ表示-->
