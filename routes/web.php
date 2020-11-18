@@ -20,6 +20,8 @@ Route::group(['middleware' => 'auth'], function(){
     Route::post('/mitsumori/create', 'CreateController@insert')->name('create.insert');
     Route::post('/mitsumori/create/success', 'CreateController@success')->name('create.success');
 
+    Route::get('/mitsumori/create/edit/{denpyou_number}', 'CreateController@edit')->name('create.edit'); //編集
+
     //API
     Route::get('/api/mitsumori/search/number/{product_number}', 'MitsumoriApiController@getProcutName');
     Route::get('/api/mitsumori/search/name/{product_name}', 'MitsumoriApiController@getProductNumber');

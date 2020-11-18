@@ -33,7 +33,6 @@
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-primary" @click="openModal(row)">検索</button>
                                 </div>
-                                <!--<button type="button" class="btn btn-outline-primary" @click="openModal(row)">検索</button>-->
                             </div>
                             <search-product v-show="showModal" :row="rowNumber" @close="closeModal" @decide="getNum($event, index)"></search-product>
                         </td>
@@ -63,6 +62,7 @@
         props: {
             loginUser: {},
             old: {},
+            items: {},
         },
         data: function(){
             return {
@@ -186,6 +186,7 @@
         },
         created(){
             if(this.old.product_number){
+                //前回入力値の呼び出し
                 let len = Object.keys(this.old.product_name).length
                 for(let i = 0; i < len; i++){
                     this.rows.push(i)
@@ -194,7 +195,38 @@
                 items.forEach(element => {
                   this.ProdNum.push(element)
                 });
+            }else if(this.items){
+                //既存見積の修正時
+                let len = Object.keys(this.items.details).length
+                for(let i = 0; i < len; i++){
+                    this.rows.push(i)
+                }
+                let numbers = this.items.details.map(value => value.product_number);
+                numbers.forEach(element => {
+                    this.ProdNum.push(element)
+                });
+                let names = this.items.details.map(value => value.product_name);
+                names.forEach(element => {
+                    this.ProdNam.push(element)
+                });
+                let quantities = this.items.details.map(value => value.quantity);
+                quantities.forEach(element => {
+                    this.Quant.push(element)
+                });
+                let units = this.items.details.map(value => value.unit);
+                units.forEach(element => {
+                    this.Uni.push(element)
+                });
+                let unit_prices = this.items.details.map(value => value.unit_price);
+                unit_prices.forEach(element => {
+                    this.UnitPr.push(element)
+                });
+                let subtotals = this.items.details.map(value => value.subtotal);
+                subtotals.forEach(element => {
+                    this.SubTo.push(element)
+                });
             }else{
+                //新規入力時
                 let len = this.def
                 for(let i = 0; i < len; i++){
                     this.rows.push(i)

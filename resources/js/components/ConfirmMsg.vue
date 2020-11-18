@@ -42,7 +42,7 @@
                 .then(res => {
                     alert('見積伝票 ' + this.DenpyouData.number + ' を削除しました')
                     this.showModal = false
-                    location.href = "http://simplequote/mitsumori/search"
+                    location.href = "http://simplequote/mitsumori/list/search"
                 })
                 .catch(e => {
                     alert('見積伝票の削除に失敗しました')

@@ -1983,7 +1983,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
@@ -1991,7 +1990,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   },
   props: {
     loginUser: {},
-    old: {}
+    old: {},
+    items: {}
   },
   data: function data() {
     return {
@@ -2199,6 +2199,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     var _this4 = this;
 
     if (this.old.product_number) {
+      //前回入力値の呼び出し
       var len = Object.keys(this.old.product_name).length;
 
       for (var i = 0; i < len; i++) {
@@ -2209,11 +2210,56 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       items.forEach(function (element) {
         _this4.ProdNum.push(element);
       });
-    } else {
-      var _len = this.def;
+    } else if (this.items) {
+      //既存見積の修正時
+      var _len = Object.keys(this.items.details).length;
 
       for (var _i = 0; _i < _len; _i++) {
         this.rows.push(_i);
+      }
+
+      var numbers = this.items.details.map(function (value) {
+        return value.product_number;
+      });
+      numbers.forEach(function (element) {
+        _this4.ProdNum.push(element);
+      });
+      var names = this.items.details.map(function (value) {
+        return value.product_name;
+      });
+      names.forEach(function (element) {
+        _this4.ProdNam.push(element);
+      });
+      var quantities = this.items.details.map(function (value) {
+        return value.quantity;
+      });
+      quantities.forEach(function (element) {
+        _this4.Quant.push(element);
+      });
+      var units = this.items.details.map(function (value) {
+        return value.unit;
+      });
+      units.forEach(function (element) {
+        _this4.Uni.push(element);
+      });
+      var unit_prices = this.items.details.map(function (value) {
+        return value.unit_price;
+      });
+      unit_prices.forEach(function (element) {
+        _this4.UnitPr.push(element);
+      });
+      var subtotals = this.items.details.map(function (value) {
+        return value.subtotal;
+      });
+      subtotals.forEach(function (element) {
+        _this4.SubTo.push(element);
+      });
+    } else {
+      //新規入力時
+      var _len2 = this.def;
+
+      for (var _i2 = 0; _i2 < _len2; _i2++) {
+        this.rows.push(_i2);
       }
     }
 
@@ -2359,7 +2405,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }).then(function (res) {
                   alert('見積伝票 ' + _this.DenpyouData.number + ' を削除しました');
                   _this.showModal = false;
-                  location.href = "http://simplequote/mitsumori/search";
+                  location.href = "http://simplequote/mitsumori/list/search";
                 })["catch"](function (e) {
                   alert('見積伝票の削除に失敗しました');
                   _this.showModal = false;

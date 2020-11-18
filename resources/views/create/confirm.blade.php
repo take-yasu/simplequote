@@ -16,6 +16,16 @@
                         <div class="card my-2">
                             <div class="card-header">ご登録内容</div>
                             <div class="card-body">
+                                @if($request->denpyou_number)
+                                    <div class="row mb-2">
+                                        <div class="col-md-2">
+                                            <label>伝票No</label>
+                                        </div>
+                                        <div class="border-bottom col-md-10">
+                                            <p>{{$request->denpyou_number}}</p>
+                                        </div>
+                                    </div>
+                                @endif
                                 <div class="row mb-2">
                                     <div class="col-md-2">
                                         <label>お届け先名称</label>

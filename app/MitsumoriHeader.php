@@ -25,4 +25,5 @@ class MitsumoriHeader extends Model
     public function getSeparatorTotalAttribute(){
         return number_format($this->total_sales) . '円';
     }
+
 }

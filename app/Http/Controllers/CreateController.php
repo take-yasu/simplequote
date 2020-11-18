@@ -20,6 +20,13 @@ class CreateController extends Controller
         return view('create.index', ['prefs' => $prefs,]);
     }
 
+    public function edit($denpyou_number){
+        $header = MitsumoriHeader::where('denpyou_number', '=', $denpyou_number)->first();
+        $details = MitsumoriDetail::where('denpyou_number', $denpyou_number)->whereNotIn('product_number', ['4'])->get();
+        $prefs = Prefecture::get(['pref_name', 'pref_code']);
+        return view('create.edit', ['prefs' => $prefs, 'header' => $header, 'details' => $details]);
+    }
+
     public function insert(CreateRequest $request){
         $prefs = Prefecture::where('pref_code', '=', $request->address01)->first(['pref_name']);
         $product = [];
@@ -45,6 +52,7 @@ class CreateController extends Controller
 
         $request->session()
             ->put(['delivery_name' => $request->delivery_name,
+                  'zip' => $request->zip,
                   'pref_code' => $request->address01,
                   'pref_name' => $prefs->pref_name,
                   'city_name' => $request->address02,
@@ -54,15 +62,26 @@ class CreateController extends Controller
                   'tax' => $request->tax,
                   'total' => $request->total,
               ]);
+
+        //編集の場合、伝票番号を含める
+        if ($request->denpyou_number){
+            $request->session()->put(['denpyou_number' => $request->denpyou_number]);
+        }
         return view('create.confirm', ['request' => $request, 'pref' => $prefs]);
     }
 
     public function success(Request $request){
-        $max = MitsumoriHeader::max('denpyou_number');
-        $next_denpyou_number = ++$max;
+        if (Session::get('denpyou_number')){
+            $next_denpyou_number = Session::get('denpyou_number');
+        }else{
+            $max = MitsumoriHeader::max('denpyou_number');
+            $next_denpyou_number = ++$max;
+        }
         $i = 1;
 
         DB::transaction(function() use ($next_denpyou_number, $i){
+            MitsumoriHeader::where('denpyou_number', $next_denpyou_number)->delete();
+            MitsumoriDetail::where('denpyou_number', $next_denpyou_number)->delete();
             MitsumoriHeader::create([
                 'denpyou_number' => $next_denpyou_number,
                 'user_code' => Auth::user()->user_code,
@@ -71,6 +90,7 @@ class CreateController extends Controller
                 'tel' => Auth::user()->tel,
                 'fax' => Auth::user()->fax,
                 'delivery_name' => Session::get('delivery_name'),
+                'zip' => Session::get('zip'),
                 'pref_code' => Session::get('pref_code'),
                 'pref_name' => Session::get('pref_name'),
                 'city_name' => Session::get('city_name'),
