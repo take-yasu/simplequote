@@ -10,7 +10,7 @@
                 <div class="row">
                     <div class="col">
                         <div class="float-right">
-                            <a href="" class="btn btn-outline-secondary">印刷</a>
+                            <a href="/api/mitsumori/pdf/{{$items->denpyou_number}}" class="btn btn-outline-secondary">印刷</a>
                             <a href="{{route('search.index')}}" class="btn btn-outline-secondary">見積一覧へ</a>
                         </div>
                     </div>

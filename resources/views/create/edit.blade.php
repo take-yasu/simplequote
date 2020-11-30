@@ -4,8 +4,18 @@
 <div class="container">
     <div class="row">
         <div class="col">
-            <div class="row mb-2">
-                <h4>■御見積書内容編集</h4>
+            <div class="container">
+                <div class="row mb-2">
+                    <h4>■御見積書内容編集</h4>
+                    <div class="col">
+                        <div class="float-right btn-group">
+                            <div class="btn-toolbar">
+                                <a href="{{route('detail.index', ['denpyou_number' => $header->denpyou_number])}}" class="btn btn-outline-secondary">戻る</a>
+                                <a href="{{route('search.index')}}" class="btn btn-outline-secondary">一覧</a>
+                            </div class="btn-toolbar">
+                        </div>
+                    </div>
+                </div>
             </div>
             <!--見積入力フォーム-->
             <div class="row mb-2">
@@ -35,8 +45,12 @@
 
                                 <div class="form-group row">
                                     <label for="denpyou_number" class="col-md-2 col-form-label">お見積りNo</label>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <input type="text" class="form-control" name="denpyou_number" value="{{$header->denpyou_number}}" readonly>
+                                    </div>
+                                    <label for="denpyou_number" class="col-md-2 col-form-label">お見積り作成日</label>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control" name="estimated_Date" value="{{$header->estimated_Date}}" readonly>
                                     </div>
                                 </div>
                                 <div class="form-group row">

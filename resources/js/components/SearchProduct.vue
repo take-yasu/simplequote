@@ -72,12 +72,11 @@
                 const response = await axios.get(`/api/mitsumori/search/name/${this.productName}`)
                 .then(res => {
                     this.productNames = res.data
-                    console.log(Object.keys(this.productNames).length)
-                    console.log(this.showProduct)
                     if(Object.keys(this.productNames).length > 0){
                         this.showProduct = true
+                    }else{
+                        alert('品番が存在しません')
                     }
-                    console.log(this.showProduct)
                 })
                 .catch(e => {
                     this.commentErrors = e.response.data.errors

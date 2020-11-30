@@ -49,7 +49,7 @@ class CreateRequest extends FormRequest
     protected function prepareForValidation(){
         //運賃以外で、品番が入力されている明細のみ抽出
         $new_product_number = array_filter($this->product_number, function($value){
-            return ($value !== '4' || !isnull($value));
+            return ($value !== '4' and !is_null($value));
         });
         unset($this->product_number);
 

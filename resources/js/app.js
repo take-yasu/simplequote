@@ -20,7 +20,7 @@ import ClearData from './components/ClearData.vue'
 import AddRow from './components/AddRow.vue'
 import SuccessMsg from './components/SuccessMsg.vue'
 import ConfirmMsg from './components/ConfirmMsg.vue'
-//import SearchProduct from './components/SearchProduct.vue'
+import SearchConfirm from './components/SearchConfirm.vue'
 
 new Vue({
     el: '#app',
@@ -29,5 +29,6 @@ new Vue({
         AddRow,
         SuccessMsg,
         ConfirmMsg,
+        SearchConfirm,
     }
 });

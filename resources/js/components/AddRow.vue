@@ -48,16 +48,19 @@
                 <button type="button" class="btn btn-outline-primary" @click="addRow">行追加</button>
             </table>
             <button type="submit" class="btn btn-primary">確認</button>
+            <modal-processing v-show="showProcess"></modal-processing>
         </form>
     </div>
 </template>
 
 <script>
     import SearchProduct from './SearchProduct.vue'
+    import ModalProcessing from './ModalProcessing.vue'
 
     export default {
         components: {
             SearchProduct,
+            ModalProcessing,
         },
         props: {
             loginUser: {},
@@ -80,6 +83,7 @@
                 showModal: false,
                 rowNumber: '',
                 ErrNum: false,
+                showProcess: false,
                 csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             }
         },
@@ -108,6 +112,9 @@
             closeModal(){
                 this.showModal = false
             },
+            openProcessing(){
+                this.showProcess = true;
+            },
             getNum(event, index){
                 this.ProdNum[event[1]]= event[0]
                 this.searchProduct(event[1])
@@ -124,10 +131,9 @@
                 let self = this
                 this.checkNum()
                 .then(function(){
-                    console.log('繰り返しの後')
-                    console.log(self.ErrNum)
                     if(!self.ErrNum){
-                        self.$refs.form.submit()
+                        self.$refs.form.submit();
+                        self.openProcessing();
                     }else{
                         self.ErrNum = false
                     }
@@ -135,13 +141,10 @@
             },
             async checkNum(){
                 this.ErrNum = false
-                console.log(this.ErrNum)
                 for(let i = 0; i < this.def; i++){
                     if(this.ProdNum[i]){
                         await this.searchProduct(i)
-                        console.log(this.ErrNum)
                         if(this.ErrNum){
-                            console.log('breakします')
                             break
                         }
                     }
@@ -153,14 +156,13 @@
                 .then(res => {
                     this.$set(this.ProdNam, row, res.data.product_name)
                     this.$set(this.Uni, row, res.data.unit)
-                    console.log(res.data.product_name)
 
                     if(!res.data.product_name){
+                        alert('品番が存在しません')
                         this.$set(this.ProdNum, row, '')
                         this.$set(this.ProdNam, row, '')
                         this.$set(this.Uni, row, '')
                         this.ErrNum = true
-                        console.log('品番が存在しません')
                     }
                 })
                 .catch(e => {

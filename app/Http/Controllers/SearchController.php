@@ -23,8 +23,11 @@ class SearchController extends Controller
         if($header === 1){
             //ヘッダ情報のみの検索
             $items = MitsumoriHeader::where('denpyou_number', 'like', '%' . $request->denpyou_number . '%')
-            ->when(isset($request->created_from, $request->created_to), function($query) use ($request){
-                return $query->wherebetween('estimated_Date', [$request->created_from, $request->created_to]);
+            ->when(isset($request->created_from), function($query) use ($request){
+                return $query->where('estimated_Date', '>=', $request->created_from);
+            })
+            ->when(isset($request->created_to), function($query) use ($request){
+                return $query->where('estimated_Date', '<=', $request->created_to);
             })
             ->where('delivery_name', 'like', '%' . $request->delivery_name . '%')
             ->whereRaw('CONCAT(pref_name, city_name, address) like ?', ['%' . $request->address . '%'])
@@ -33,9 +36,14 @@ class SearchController extends Controller
             //ヘッダ＆明細情報の検索
             $items = MitsumoriDetail::with('MitsumoriHeader')
             ->where('denpyou_number', 'like', '%' . $request->denpyou_number . '%')
-            ->when(isset($request->created_from, $request->created_to), function($query) use ($request){
+            ->when(isset($request->created_from), function($query) use ($request){
                 return $query->wherehas('mitsumoriHeader', function($query_add) use ($request){
-                    $query_add->wherebetween('estimated_Date', [$request->created_from, $request->created_to]);
+                    $query_add->where('estimated_Date', '>=', $request->created_from);
+                });
+            })
+            ->when(isset($request->created_to), function($query) use ($request){
+                return $query->wherehas('mitsumoriHeader', function($query_add) use ($request){
+                    $query_add->where('estimated_Date', '<=', $request->created_to);
                 });
             })
             ->wherehas('mitsumoriHeader', function($query) use ($request){

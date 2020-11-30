@@ -10,19 +10,39 @@
             <!--見積りヘッダー部-->
             <form action="{{route('create.success')}}" method="post">
                 @csrf
+            <div class="row">
+                <div class="col">
+                    <div class="float-right btn-group">
+                        <div class="btn-toolbar">
+                            <button type="submit" class="btn btn-secondary" name="back" value="1">戻る</button>
+                            <button type="submit" class="btn btn-primary" name="regist">登録</button>
+                        </div class="btn-toolbar">
+                    </div>
+                </div>
+            </div>
             <div class="container">
                 <div class="row">
                     <div class="col">
                         <div class="card my-2">
                             <div class="card-header">ご登録内容</div>
                             <div class="card-body">
-                                @if($request->denpyou_number)
+                                @if(Session::get('denpyou_number'))
                                     <div class="row mb-2">
                                         <div class="col-md-2">
                                             <label>伝票No</label>
                                         </div>
                                         <div class="border-bottom col-md-10">
-                                            <p>{{$request->denpyou_number}}</p>
+                                            <p>{{Session::get('denpyou_number')}}</p>
+                                            <input type="hidden" name="denpyou_number" value="{{Session::get('denpyou_number')}}" />
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-md-2">
+                                            <label>見積作成日</label>
+                                        </div>
+                                        <div class="border-bottom col-md-10">
+                                            <p>{{Session::get('estimated_Date')}}</p>
+                                            <input type="hidden" name="estimated_Date" value="{{Session::get('estimated_Date')}}" />
                                         </div>
                                     </div>
                                 @endif
@@ -32,6 +52,7 @@
                                     </div>
                                     <div class="border-bottom col-md-10">
                                         <p>{{$request->delivery_name}}</p>
+                                        <input type="hidden" name="delivery_name" value="{{$request->delivery_name}}" />
                                     </div>
                                 </div>
                                 <div class="row mb-2">
@@ -43,6 +64,10 @@
                                         {{$pref->pref_name}}
                                         {{$request->address02}}
                                         {{$request->address03}}
+                                        <input type="hidden" name="zip" value="{{$request->zip}}" />
+                                        <input type="hidden" name="address01" value="{{$request->address01}}" />
+                                        <input type="hidden" name="address02" value="{{$request->address02}}" />
+                                        <input type="hidden" name="address03" value="{{$request->address03}}" />
                                     </div>
                                 </div>
                             </div>
@@ -71,12 +96,12 @@
                                 @foreach($request->new_product_number as $index => $item)
                                 <tr>
                                     <td>{{$loop->iteration}}</td>
-                                    <td>{{$item}}</td>
-                                    <td>{{$request->product_name[$index]}}</td>
-                                    <td>{{$request->quantity[$index]}}</td>
-                                    <td>{{$request->unit[$index]}}</td>
-                                    <td>{{number_format($request->unit_price[$index])}}円</td>
-                                    <td>{{number_format($request->subtotal[$index])}}円</td>
+                                    <td>{{$item}}<input type="hidden" name="product_number[]" value="{{$item}}" /></td>
+                                    <td>{{$request->product_name[$index]}}<input type="hidden" name="product_name[]" value="{{$request->product_name[$index]}}" /></td>
+                                    <td>{{$request->quantity[$index]}}<input type="hidden" name="quantity[]" value="{{$request->quantity[$index]}}" /></td>
+                                    <td>{{$request->unit[$index]}}<input type="hidden" name="unit[]" value="{{$request->unit[$index]}}" /></td>
+                                    <td>{{number_format($request->unit_price[$index])}}円<input type="hidden" name="unit_price[]" value="{{($request->unit_price[$index])}}" /></td>
+                                    <td>{{number_format($request->subtotal[$index])}}円<input type="hidden" name="subtotal[]" value="{{($request->subtotal[$index])}}" /></td>
                                 </tr>
                                 @endforeach
                                 @if($request->msg)
@@ -107,7 +132,6 @@
                     </div>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">登録</button>
             </form>
         </div>
     </div>

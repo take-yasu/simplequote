@@ -15,9 +15,17 @@ use Carbon\Carbon;
 
 class CreateController extends Controller
 {
-    public function index(){
+    public function index($denpyou_number = null){
+        //$old = $request->session()->get('product');
+        //dd($old);
         $prefs = Prefecture::get(['pref_name', 'pref_code']);
-        return view('create.index', ['prefs' => $prefs,]);
+        if ($denpyou_number){
+            $header = MitsumoriHeader::where('denpyou_number', '=', $denpyou_number)->first();
+            $details = MitsumoriDetail::where('denpyou_number', $denpyou_number)->whereNotIn('product_number', ['4'])->get();
+            return view('create.index', ['prefs' => $prefs, 'header' => $header, 'details' => $details]);
+        }else{
+            return view('create.index', ['prefs' => $prefs]);
+        }
     }
 
     public function edit($denpyou_number){
@@ -65,21 +73,27 @@ class CreateController extends Controller
 
         //編集の場合、伝票番号を含める
         if ($request->denpyou_number){
-            $request->session()->put(['denpyou_number' => $request->denpyou_number]);
+            $request->session()->put(['denpyou_number' => $request->denpyou_number, 'estimated_Date' => $request->estimated_Date]);
         }
+        //$request->session()->flash();
         return view('create.confirm', ['request' => $request, 'pref' => $prefs]);
     }
 
     public function success(Request $request){
+        if($request->back){
+            return redirect('/mitsumori/create')->withInput($request->all());
+        }
         if (Session::get('denpyou_number')){
             $next_denpyou_number = Session::get('denpyou_number');
+            $estimated_date = Session::get('estimated_Date');
         }else{
             $max = MitsumoriHeader::max('denpyou_number');
             $next_denpyou_number = ++$max;
+            $estimated_date = Carbon::now();
         }
         $i = 1;
 
-        DB::transaction(function() use ($next_denpyou_number, $i){
+        DB::transaction(function() use ($next_denpyou_number, $estimated_date, $i){
             MitsumoriHeader::where('denpyou_number', $next_denpyou_number)->delete();
             MitsumoriDetail::where('denpyou_number', $next_denpyou_number)->delete();
             MitsumoriHeader::create([
@@ -96,7 +110,7 @@ class CreateController extends Controller
                 'city_name' => Session::get('city_name'),
                 'address' => Session::get('address'),
                 'total_sales' => Session::get('total'),
-                'estimated_Date' => Carbon::now(),
+                'estimated_Date' => $estimated_date,
             ]);
             foreach(Session::get('product') as $product){
                 MitsumoriDetail::create([

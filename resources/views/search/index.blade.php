@@ -9,7 +9,7 @@
             <div class="card mb-2">
                 <div class="card-header">検索条件を入力してください</div>
                 <div class="card-body">
-                    <form action="{{route('search.search')}}" method="get" id="search" name="search">
+                    <form action="{{route('search.search')}}" method="get" id="search" name="search" ref="form">
                         @csrf
                         <!--入力エラーの表示-->
                         @if(count($errors) > 0)
@@ -58,7 +58,8 @@
                         </div>
                         <hr>
                         <div class="form-group row form-inline float-right">
-                            <button type="submit" class="btn btn-primary mr-2">検索</button>
+                            <search-confirm></search-confirm>
+                            <!--<button type="submit" class="btn btn-primary mr-2">検索</button>-->
                             <clear-data></clear-data>
                             <!--<button type="button" id="clear" class="btn btn-secondary" @click="clearData">クリア</button>-->
                         </div>
